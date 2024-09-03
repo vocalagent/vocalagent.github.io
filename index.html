@@ -6,7 +6,7 @@
     <title>Enhanced LLM Chat Interface</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: #333;
             max-width: 800px;
@@ -17,11 +17,42 @@
         h1 {
             color: #2c3e50;
             text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+        }
+        #subscription-info {
+            display: none;
+            background-color: #3498db;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        #subscription-info h2 {
+            margin-top: 0;
+        }
+        #subscription-info p {
+            margin-bottom: 15px;
+        }
+        #subscribe-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        #subscribe-btn:hover {
+            background-color: #27ae60;
         }
         #chat-container {
             background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             height: 500px;
             overflow-y: scroll;
             padding: 20px;
@@ -33,21 +64,30 @@
         }
         #user-input {
             flex-grow: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
             font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        #user-input:focus {
+            outline: none;
+            border-color: #3498db;
         }
         #send-btn {
-            background-color: #2c3e50;
+            background-color: #3498db;
             color: white;
             border: none;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             margin-left: 10px;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 20px;
+            transition: background-color 0.3s ease;
+        }
+        #send-btn:hover {
+            background-color: #2980b9;
         }
         .message {
             margin-bottom: 15px;
@@ -56,15 +96,16 @@
         }
         .message-content {
             max-width: 80%;
-            padding: 10px 15px;
+            padding: 12px 18px;
             border-radius: 18px;
             font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .user-message {
             justify-content: flex-end;
         }
         .user-message .message-content {
-            background-color: #0084ff;
+            background-color: #3498db;
             color: white;
             margin-left: auto;
         }
@@ -72,8 +113,8 @@
             background-color: #f0f0f0;
         }
         .ai-icon {
-            width: 30px;
-            height: 30px;
+            width: 35px;
+            height: 35px;
             margin-right: 10px;
             border-radius: 50%;
             background-color: #2c3e50;
@@ -85,16 +126,50 @@
         }
         #model-select {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin-bottom: 20px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
+            border-radius: 8px;
+            border: 2px solid #ddd;
             font-size: 16px;
+            background-color: white;
+            transition: border-color 0.3s ease;
+        }
+        #model-select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        #file-input {
+            display: none;
+        }
+        #file-label {
+            background-color: #2ecc71;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        .file-message {
+            background-color: #e8f5e9;
+            border: 1px solid #2ecc71;
+            padding: 5px 10px;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
     <h1>Enhanced LLM Chat Interface</h1>
+    
+    <div id="subscription-info">
+        <h2>Upgrade to Premium</h2>
+        <p>You've enjoyed 5 turns of conversation. Upgrade now for unlimited AI-powered chats!</p>
+        <p>Only $15/month for unlimited access.</p>
+        <button id="subscribe-btn">Subscribe Now</button>
+    </div>
+
     <select id="model-select">
         <option value="claude">Claude</option>
         <option value="openai">OpenAI</option>
@@ -102,22 +177,83 @@
     </select>
     <div id="chat-container"></div>
     <div id="input-container">
+        <label for="file-input" id="file-label">📎 Add File</label>
+        <input type="file" id="file-input" multiple>
         <input type="text" id="user-input" placeholder="Type your message here...">
         <button id="send-btn">➤</button>
     </div>
 
+    <div id="payment-modal">
+        <div class="modal-content">
+            <h2>Subscribe to Continue</h2>
+            <p>Upgrade now for unlimited AI-powered conversations.</p>
+            <form id="payment-form">
+                <input type="text" placeholder="Card Number" required>
+                <input type="text" placeholder="Expiry Date" required>
+                <input type="text" placeholder="CVV" required>
+                <button type="submit">Pay $15 and Subscribe</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://js.stripe.com/v3/"></script>
     <script>
+        const subscriptionInfo = document.getElementById('subscription-info');
+        const subscribeBtn = document.getElementById('subscribe-btn');
         const chatContainer = document.getElementById('chat-container');
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
         const modelSelect = document.getElementById('model-select');
+        const paymentModal = document.getElementById('payment-modal');
+        const paymentForm = document.getElementById('payment-form');
+        const fileInput = document.getElementById('file-input');
 
+        let turnCount = 0;
+        let isSubscribed = false;
+
+        // Initialize Stripe
+        const stripe = Stripe('your_publishable_key');
+
+        subscribeBtn.addEventListener('click', showPaymentModal);
         sendBtn.addEventListener('click', sendMessage);
         userInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 sendMessage();
             }
         });
+        fileInput.addEventListener('change', handleFileUpload);
+        paymentForm.addEventListener('submit', handlePayment);
+
+        function showPaymentModal() {
+            paymentModal.style.display = 'block';
+        }
+
+        function showSubscriptionInfo() {
+            subscriptionInfo.style.display = 'block';
+        }
+
+        async function handlePayment(e) {
+            e.preventDefault();
+            try {
+                const response = await fetch('/create-checkout-session', {
+                    method: 'POST',
+                });
+                const session = await response.json();
+                const result = await stripe.redirectToCheckout({
+                    sessionId: session.id,
+                });
+                if (result.error) {
+                    alert(result.error.message);
+                } else {
+                    isSubscribed = true;
+                    paymentModal.style.display = 'none';
+                    subscriptionInfo.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            }
+        }
 
         function sendMessage() {
             const message = userInput.value.trim();
@@ -125,10 +261,15 @@
                 addMessageToChat('user', message);
                 generateAIResponse(message);
                 userInput.value = '';
+                turnCount++;
+                
+                if (turnCount === 5 && !isSubscribed) {
+                    showSubscriptionInfo();
+                }
             }
         }
 
-        function addMessageToChat(sender, message) {
+        function addMessageToChat(sender, message, isFile = false) {
             const messageElement = document.createElement('div');
             messageElement.classList.add('message', `${sender}-message`);
             
@@ -141,11 +282,27 @@
 
             const contentElement = document.createElement('div');
             contentElement.classList.add('message-content');
-            contentElement.textContent = message;
+            
+            if (isFile) {
+                contentElement.classList.add('file-message');
+                contentElement.textContent = `File: ${message}`;
+            } else {
+                contentElement.textContent = message;
+            }
+            
             messageElement.appendChild(contentElement);
 
             chatContainer.appendChild(messageElement);
             chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function handleFileUpload(event) {
+            const files = event.target.files;
+            for (let i = 0; i < files.length; i++) {
+                addMessageToChat('user', files[i].name, true);
+                // Here you would typically upload the file to your server
+                // and process it as needed
+            }
         }
 
         async function generateAIResponse(userMessage) {
