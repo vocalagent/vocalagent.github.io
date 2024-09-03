@@ -5,7 +5,190 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enhanced LLM Chat Interface</title>
     <style>
-        /* (Styles remain the same as in your original code) */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+        }
+        #subscription-info {
+            display: none;
+            background-color: #3498db;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        #subscription-info h2 {
+            margin-top: 0;
+        }
+        #subscription-info p {
+            margin-bottom: 15px;
+        }
+        #subscribe-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        #subscribe-btn:hover {
+            background-color: #27ae60;
+        }
+        #chat-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            height: 500px;
+            overflow-y: scroll;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        #input-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        #user-input {
+            flex-grow: 1;
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        #user-input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        #send-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: background-color 0.3s ease;
+        }
+        #send-btn:hover {
+            background-color: #2980b9;
+        }
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .message-content {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .user-message {
+            justify-content: flex-end;
+        }
+        .user-message .message-content {
+            background-color: #3498db;
+            color: white;
+            margin-left: auto;
+        }
+        .ai-message .message-content {
+            background-color: #f0f0f0;
+        }
+        .ai-icon {
+            width: 35px;
+            height: 35px;
+            margin-right: 10px;
+            border-radius: 50%;
+            background-color: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        #model-select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            font-size: 16px;
+            background-color: white;
+            transition: border-color 0.3s ease;
+        }
+        #model-select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        #file-input {
+            display: none;
+        }
+        #file-label {
+            background-color: #2ecc71;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        .file-message {
+            background-color: #e8f5e9;
+            border: 1px solid #2ecc71;
+            padding: 5px 10px;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        #payment-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .modal-content {
+            text-align: center;
+        }
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+        .modal-content button {
+            background-color: #2ecc71;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            border: none;
+        }
     </style>
 </head>
 <body>
@@ -27,11 +210,11 @@
     <div id="input-container">
         <label for="file-input" id="file-label">📎 Add File</label>
         <input type="file" id="file-input" multiple>
-        <input type="text" id="user-input" placeholder="Type your message here..." disabled>
+        <input type="text" id="user-input" placeholder="Type your message here...">
         <button id="send-btn">➤</button>
     </div>
 
-    <div id="payment-modal" style="display:none;">
+    <div id="payment-modal">
         <div class="modal-content">
             <h2>Subscribe to Continue</h2>
             <p>Upgrade now for unlimited AI-powered conversations.</p>
@@ -72,9 +255,9 @@
         fileInput.addEventListener('change', handleFileUpload);
         paymentForm.addEventListener('submit', handlePayment);
 
-        // Allow user interaction only if subscribed
-        userInput.disabled = !isSubscribed;
-        sendBtn.disabled = !isSubscribed;
+        // Enable user interaction at the start
+        userInput.disabled = false;
+        sendBtn.disabled = false;
 
         function showPaymentModal() {
             paymentModal.style.display = 'block';
@@ -91,7 +274,6 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        // Send necessary data to create a checkout session
                         amount: 1500, // $15 in cents
                         currency: 'usd'
                     })
@@ -162,8 +344,6 @@
             const files = event.target.files;
             for (let i = 0; i < files.length; i++) {
                 addMessageToChat('user', files[i].name, true);
-                // Here you would typically upload the file to your server
-                // and process it as needed
             }
         }
 
@@ -172,8 +352,6 @@
             addMessageToChat('ai', 'Thinking...');
             
             try {
-                // In a real implementation, you would make an API call here
-                // For now, we'll simulate a response
                 const response = await simulateApiCall(model, userMessage);
                 chatContainer.removeChild(chatContainer.lastChild); // Remove "Thinking..." message
                 addMessageToChat('ai', response);
