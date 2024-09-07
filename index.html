@@ -128,6 +128,21 @@
             cursor: pointer;
             margin-top: 10px;
         }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .vhi-question {
+            margin-bottom: 10px;
+        }
+        .vhi-options {
+            display: flex;
+            justify-content: space-between;
+        }
     </style>
 </head>
 <body>
@@ -140,9 +155,81 @@
     </div>
 
     <div id="survey-form">
-        <h2>[상담 및 병력 조사]</h2>
-        <!-- Your form code remains the same -->
-        <button id="submit-survey">설문 제출</button>
+        <h2>[Consultation and Medical History]</h2>
+        <div class="form-group">
+            <label for="drinking">Alcohol/Smoking History:</label>
+            <input type="text" id="drinking" name="drinking">
+        </div>
+        <div class="form-group">
+            <label for="smoking">Occupation:</label>
+            <input type="text" id="occupation" name="occupation">
+        </div>
+        <div class="form-group">
+            <label for="recent-event">Recent Event (e.g., shouting, heavy voice usage):</label>
+            <textarea id="recent-event" name="recent-event" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="medical-history">Past Medical History (e.g., voice or brain illness):</label>
+            <textarea id="medical-history" name="medical-history" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="surgery-history">Surgery History (e.g., vocal cord surgeries):</label>
+            <textarea id="surgery-history" name="surgery-history" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+            <h3>VHI-10 Survey</h3>
+            <div class="vhi-question">
+                <p>1. People find it difficult to understand me because of my voice.</p>
+                <div class="vhi-options">
+                    <label><input type="radio" name="vhi1" value="0"> 0</label>
+                    <label><input type="radio" name="vhi1" value="1"> 1</label>
+                    <label><input type="radio" name="vhi1" value="2"> 2</label>
+                    <label><input type="radio" name="vhi1" value="3"> 3</label>
+                    <label><input type="radio" name="vhi1" value="4"> 4</label>
+                </div>
+            </div>
+            <div class="vhi-question">
+                <p>2. People have difficulty hearing me in noisy places.</p>
+                <div class="vhi-options">
+                    <label><input type="radio" name="vhi2" value="0"> 0</label>
+                    <label><input type="radio" name="vhi2" value="1"> 1</label>
+                    <label><input type="radio" name="vhi2" value="2"> 2</label>
+                    <label><input type="radio" name="vhi2" value="3"> 3</label>
+                    <label><input type="radio" name="vhi2" value="4"> 4</label>
+                </div>
+            </div>
+            <div class="vhi-question">
+                <p>3. My family has difficulty hearing me when I call them at home.</p>
+                <div class="vhi-options">
+                    <label><input type="radio" name="vhi3" value="0"> 0</label>
+                    <label><input type="radio" name="vhi3" value="1"> 1</label>
+                    <label><input type="radio" name="vhi3" value="2"> 2</label>
+                    <label><input type="radio" name="vhi3" value="3"> 3</label>
+                    <label><input type="radio" name="vhi3" value="4"> 4</label>
+                </div>
+            </div>
+            <div class="vhi-question">
+                <p>4. I use the phone less often because of my voice.</p>
+                <div class="vhi-options">
+                    <label><input type="radio" name="vhi4" value="0"> 0</label>
+                    <label><input type="radio" name="vhi4" value="1"> 1</label>
+                    <label><input type="radio" name="vhi4" value="2"> 2</label>
+                    <label><input type="radio" name="vhi4" value="3"> 3</label>
+                    <label><input type="radio" name="vhi4" value="4"> 4</label>
+                </div>
+            </div>
+            <div class="vhi-question">
+                <p>5. I avoid talking to people because of my voice.</p>
+                <div class="vhi-options">
+                    <label><input type="radio" name="vhi5" value="0"> 0</label>
+                    <label><input type="radio" name="vhi5" value="1"> 1</label>
+                    <label><input type="radio" name="vhi5" value="2"> 2</label>
+                    <label><input type="radio" name="vhi5" value="3"> 3</label>
+                    <label><input type="radio" name="vhi5" value="4"> 4</label>
+                </div>
+            </div>
+        </div>
+        <button id="submit-survey">Submit Survey</button>
     </div>
 
     <div id="chat-interface">
@@ -171,14 +258,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/6.6.3/wavesurfer.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/6.6.3/plugin/wavesurfer.timeline.min.js"></script>
-    <script type="importmap">
-        {
-            "imports": {
-                "@google/generative-ai": "https://esm.run/@google/generative-ai"
-            }
-        }
-    </script>
-
     <script type="module">
         import { GoogleGenerativeAI } from "@google/generative-ai";
 
