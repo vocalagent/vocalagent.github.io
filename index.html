@@ -226,7 +226,17 @@
         let wavesurfer;
         let isPlaying = false;
 
-        // Correct the redundant event listener for API key submission
+        // Initialize the Gemini API
+        submitApiKey.addEventListener('click', initializeChat);
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        fileInput.addEventListener('change', handleFileUpload);
+        playPauseBtn.addEventListener('click', togglePlayPause);
+
         async function initializeChat() {
             const apiKey = apiKeyInput.value.trim();
             if (apiKey) {
@@ -244,8 +254,6 @@
             }
         }
 
-        submitApiKey.addEventListener('click', initializeChat); // Keep only this listener for API key submission
-
         // Handle survey form submission
         document.getElementById('submit-survey').addEventListener('click', (e) => {
             e.preventDefault(); // Prevent the default form submission
@@ -260,7 +268,7 @@
                 surgeryHistory: document.getElementById('surgery-history').value,
             };
             
-            // Format survey data as an introduction message for the LLM
+            // Format survey data for better visibility with line breaks
             const surveyContextMessage = `The user provided the following information:\n\n`
                 + `- Drinking/Smoking Habits: ${surveyData.drinkingSmoking}\n`
                 + `- Occupation: ${surveyData.occupation}\n`
@@ -339,6 +347,7 @@
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
+        // Handle file upload and display the waveform
         async function handleFileUpload(event) {
             const file = event.target.files[0];
             if (file) {
