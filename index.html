@@ -31,13 +31,29 @@
         #survey-form, #chat-interface {
             display: none;
         }
-        input[type="text"], textarea, select {
-            width: 80%;
+        #chat-container {
+            height: 400px;
+            overflow-y: scroll;
+            margin-bottom: 20px;
             padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        #input-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        input[type="text"], input[type="password"], textarea, select {
+            width: 100%;
+            padding: 12px 20px;
             border: 2px solid #ddd;
-            border-radius: 15px;
-            font-size: 14px;
-            margin-bottom: 10px;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        input[type="text"]:focus, input[type="password"]:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
         }
         button {
             background-color: #3498db;
@@ -45,17 +61,77 @@
             border: none;
             border-radius: 25px;
             padding: 12px 20px;
+            margin-left: 10px;
             cursor: pointer;
             font-size: 16px;
+            transition: background-color 0.3s ease;
         }
         button:hover {
             background-color: #2980b9;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .user-message {
+            background-color: #e8f5e9;
+            text-align: right;
+        }
+        .ai-message {
+            background-color: #e3f2fd;
+        }
+        #file-input {
+            display: none;
+        }
+        #file-label {
+            background-color: #2ecc71;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        #waveform-container {
+            position: relative;
+            width: 100%;
+            height: 120px;
+            margin-bottom: 20px;
+        }
+        #waveform {
+            width: 100%;
+            height: 100px;
+        }
+        #waveform-timeline {
+            margin-top: 5px;
+            height: 20px;
+        }
+        #timestamps {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .vhi-question {
+            margin-bottom: 10px;
+        }
+        .vhi-options {
+            display: flex;
+            justify-content: space-between;
         }
     </style>
 </head>
 <body>
     <h1>Enhanced LLM Chat Interface</h1>
-
+    
     <div id="api-key-container">
         <h2>Enter Gemini API Key</h2>
         <input type="password" id="api-key-input" placeholder="Enter your Gemini API Key">
@@ -63,51 +139,169 @@
     </div>
 
     <div id="survey-form">
-        <h2>Consultation and Medical History</h2>
+        <h2>[상담 및 병력 조사]</h2>
         <div class="form-group">
-            <label for="drinking">Drinking Habits:</label>
-            <input type="text" id="drinking" name="drinking" required>
+            <label for="drinking">음주력:</label>
+            <input type="text" id="drinking" name="drinking">
         </div>
         <div class="form-group">
-            <label for="smoking">Smoking Habits:</label>
-            <input type="text" id="smoking" name="smoking" required>
+            <label for="smoking">흡연력:</label>
+            <input type="text" id="smoking" name="smoking">
         </div>
         <div class="form-group">
-            <label for="occupation">Occupation:</label>
-            <input type="text" id="occupation" name="occupation" required>
+            <label for="occupation">직업:</label>
+            <input type="text" id="occupation" name="occupation">
         </div>
         <div class="form-group">
-            <label for="recent-event">Recent Events:</label>
-            <textarea id="recent-event" name="recent-event" rows="3" required></textarea>
+            <label for="recent-event">최근 event:</label>
+            <textarea id="recent-event" name="recent-event" rows="3"></textarea>
         </div>
         <div class="form-group">
-            <label for="medical-history">Medical History:</label>
-            <textarea id="medical-history" name="medical-history" rows="3" required></textarea>
+            <label for="medical-history">과거력:</label>
+            <textarea id="medical-history" name="medical-history" rows="3"></textarea>
         </div>
         <div class="form-group">
-            <label for="surgery-history">Surgery History:</label>
-            <textarea id="surgery-history" name="surgery-history" rows="3" required></textarea>
+            <label for="surgery-history">수술력:</label>
+            <textarea id="surgery-history" name="surgery-history" rows="3"></textarea>
         </div>
         <div class="form-group">
-            <h3>VHI-10 Questionnaire</h3>
+            <h3>VHI-10 설문조사</h3>
             <div class="vhi-question">
-                <label>1. My voice makes it difficult for people to hear me.</label>
+                <p>1. 내 목소리 때문에 사람들이 내 말을 알아듣기 힘들어한다.</p>
                 <div class="vhi-options">
-                    <label><input type="radio" name="vhi1" value="0">Never</label>
-                    <label><input type="radio" name="vhi1" value="1">Rarely</label>
-                    <label><input type="radio" name="vhi1" value="2">Sometimes</label>
-                    <label><input type="radio" name="vhi1" value="3">Often</label>
-                    <label><input type="radio" name="vhi1" value="4">Always</label>
+                    <label><input type="radio" name="vhi1" value="0"> 0</label>
+                    <label><input type="radio" name="vhi1" value="1"> 1</label>
+                    <label><input type="radio" name="vhi1" value="2"> 2</label>
+                    <label><input type="radio" name="vhi1" value="3"> 3</label>
+                    <label><input type="radio" name="vhi1" value="4"> 4</label>
                 </div>
             </div>
-            <!-- Repeat similar structure for other VHI questions -->
+            <div class="vhi-question">
+                <p>2. 사람들이 시끄러운 곳에서 내 목소리를 듣기 힘들어한다.</p>
+                <div class="vhi-options">
+                    <label><input type="radio" name="vhi2" value="0"> 0</label>
+                    <label><input type="radio" name="vhi2" value="1"> 1</label>
+                    <label><input type="radio" name="vhi2" value="2"> 2</label>
+                    <label><input type="radio" name="vhi2" value="3"> 3</label>
+                    <label><input type="radio" name="vhi2" value="4"> 4</label>
+                </div>
+            </div>
+            <div class="vhi-question">
+                <p>3. 가족들이 집안에서 나를 부를 때 내 목소리를 알아듣기 힘들어한다.</p>
+                <div class="vhi-options">
+                    <label><input type="radio" name="vhi3" value="0"> 0</label>
+                    <label><input type="radio" name="vhi3" value="1"> 1</label>
+                    <label><input type="radio" name="vhi3" value="2"> 2</label>
+                    <label><input type="radio" name="vhi3" value="3"> 3</label>
+                    <label><input type="radio" name="vhi3" value="4"> 4</label>
+                </div>
+            </div>
+            <div class="vhi-question">
+                <p>4. 나는 평소에 전화를 덜 사용한다.</p>
+                <div class="vhi-options">
+                    <label><input type="radio" name="vhi4" value="0"> 0</label>
+                    <label><input type="radio" name="vhi4" value="1"> 1</label>
+                    <label><input type="radio" name="vhi4" value="2"> 2</label>
+                    <label><input type="radio" name="vhi4" value="3"> 3</label>
+                    <label><input type="radio" name="vhi4" value="4"> 4</label>
+                </div>
+            </div>
+            <div class="vhi-question">
+                <p>5. 나는 목소리 때문에 사람들과 대화하는 것을 피한다.</p>
+                <div class="vhi-options">
+                    <label><input type="radio" name="vhi5" value="0"> 0</label>
+                    <label><input type="radio" name="vhi5" value="1"> 1</label>
+                    <label><input type="radio" name="vhi5" value="2"> 2</label>
+                    <label><input type="radio" name="vhi5" value="3"> 3</label>
+                    <label><input type="radio" name="vhi5" value="4"> 4</label>
+                </div>
+            </div>
+            <div class="vhi-question">
+                <p>6. 나는 목소리 때문에 친구, 이웃, 친척들과 더 멀어진 것 같다.</p>
+                <div class="vhi-options">
+                    <label><input type="radio" name="vhi6" value="0"> 0</label>
+                    <label><input type="radio" name="vhi6" value="1"> 1</label>
+                    <label><input type="radio" name="vhi6" value="2"> 2</label>
+                    <label><input type="radio" name="vhi6" value="3"> 3</label>
+                    <label><input type="radio" name="vhi6" value="4"> 4</label>
+                </div>
+            </div>
+            <div class="vhi-question">
+                <p>7. 사람들이 말할 때 나의 말을 되풀이해 달라고 요청한다.</p>
+                <div class="vhi-options">
+                    <label><input type="radio" name="vhi7" value="0"> 0</label>
+                    <label><input type="radio" name="vhi7" value="1"> 1</label>
+                    <label><input type="radio" name="vhi7" value="2"> 2</label>
+                    <label><input type="radio" name="vhi7" value="3"> 3</label>
+                    <label><input type="radio" name="vhi7" value="4"> 4</label>
+                </div>
+            </div>
+            <div class="vhi-question">
+                <p>8. 나의 목소리 문제는 나의 사생활에 지장을 준다.</p>
+                <div class="vhi-options">
+                    <label><input type="radio" name="vhi8" value="0"> 0</label>
+                    <label><input type="radio" name="vhi8" value="1"> 1</label>
+                    <label><input type="radio" name="vhi8" value="2"> 2</label>
+                    <label><input type="radio" name="vhi8" value="3"> 3</label>
+                    <label><input type="radio" name="vhi8" value="4"> 4</label>
+                </div>
+            </div>
+            <div class="vhi-question">
+                <p>9. 나는 내 목소리 때문에 소외감을 느낀다.</p>
+                <div class="vhi-options">
+                    <label><input type="radio" name="vhi9" value="0"> 0</label>
+                    <label><input type="radio" name="vhi9" value="1"> 1</label>
+                    <label><input type="radio" name="vhi9" value="2"> 2</label>
+                    <label><input type="radio" name="vhi9" value="3"> 3</label>
+                    <label><input type="radio" name="vhi9" value="4"> 4</label>
+                </div>
+            </div>
+            <div class="vhi-question">
+                <p>10. 사람들이 내 목소리에 대해 물어본다.</p>
+                <div class="vhi-options">
+                    <label><input type="radio" name="vhi10" value="0"> 0</label>
+                    <label><input type="radio" name="vhi10" value="1"> 1</label>
+                    <label><input type="radio" name="vhi10" value="2"> 2</label>
+                    <label><input type="radio" name="vhi10" value="3"> 3</label>
+                    <label><input type="radio" name="vhi10" value="4"> 4</label>
+                </div>
+            </div>
         </div>
-        <button id="submit-survey">Submit Survey</button>
+        <button id="submit-survey">설문 제출</button>
     </div>
 
     <div id="chat-interface">
-        <!-- Chat and Audio Interface (unchanged) -->
+        <div id="waveform-section">
+            <div id="waveform-container">
+                <div id="waveform"></div>
+                <div id="waveform-timeline"></div>
+            </div>
+            <div id="timestamps">
+                <span id="start-time">0:00</span>
+                <span id="end-time">0:00</span>
+            </div>
+        </div>
+        
+        <div id="chat-section">
+            <div id="chat-container"></div>
+            <div id="input-container">
+                <label for="file-input" id="file-label">📎 Add Audio File</label>
+                <input type="file" id="file-input" accept="audio/*">
+                <input type="text" id="user-input" placeholder="Type your message here...">
+                <button id="send-btn">Send</button>
+            </div>
+        </div>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/6.6.3/wavesurfer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/6.6.3/plugin/wavesurfer.timeline.min.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "@google/generative-ai": "https://esm.run/@google/generative-ai"
+            }
+        }
+    </script>
 
     <script type="module">
         import { GoogleGenerativeAI } from "@google/generative-ai";
@@ -115,21 +309,65 @@
         const apiKeyContainer = document.getElementById('api-key-container');
         const apiKeyInput = document.getElementById('api-key-input');
         const submitApiKey = document.getElementById('submit-api-key');
-        const surveyForm = document.getElementById('survey-form');
-        const submitSurvey = document.getElementById('submit-survey');
         const chatInterface = document.getElementById('chat-interface');
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const fileInput = document.getElementById('file-input');
+        const startTimeElem = document.getElementById('start-time');
+        const endTimeElem = document.getElementById('end-time');
 
         let genAI;
         let model;
+        let wavesurfer;
 
-        submitApiKey.addEventListener('click', async function() {
+        submitApiKey.addEventListener('click', initializeChat);
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        fileInput.addEventListener('change', handleFileUpload);
+
+        async function initializeChat() {
             const apiKey = apiKeyInput.value.trim();
             if (apiKey) {
                 try {
                     genAI = new GoogleGenerativeAI(apiKey);
-                    model = await genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-                    apiKeyContainer.style.display = 'none'; // Hide the API key form
-                    surveyForm.style.display = 'block'; // Show the survey form
+                    model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+                    apiKeyContainer.style.display = 'none';
+                    chatInterface.style.display = 'block';
+                    addMessageToChat('ai', 'Hello! How can I assist you today?');
+                    
+                    wavesurfer = WaveSurfer.create({
+                        container: '#waveform',
+                        waveColor: '#4F4A85',
+                        progressColor: '#383351',
+                        cursorColor: '#383351',
+                        barWidth: 3,
+                        barRadius: 3,
+                        responsive: true,
+                        height: 100,
+                        normalize: true,
+                        partialRender: true,
+                        plugins: [
+                            WaveSurfer.timeline.create({
+                                container: "#waveform-timeline"
+                            })
+                        ]
+                    });
+
+                    wavesurfer.on('ready', function() {
+                        const duration = wavesurfer.getDuration();
+                        endTimeElem.textContent = formatTime(duration);
+                    });
+
+                    wavesurfer.on('seek', function(progress) {
+                        const duration = wavesurfer.getDuration();
+                        wavesurfer.play(progress * duration);
+                    });
+
                 } catch (error) {
                     console.error('Error initializing Gemini API:', error);
                     alert('Failed to initialize Gemini API. Please check your API key and try again.');
@@ -137,23 +375,68 @@
             } else {
                 alert('Please enter a valid API key.');
             }
-        });
+        }
 
-        submitSurvey.addEventListener('click', function(event) {
-            event.preventDefault();
-            // Ensure all required fields are filled
-            const requiredFields = surveyForm.querySelectorAll('[required]');
-            for (let field of requiredFields) {
-                if (!field.value.trim()) {
-                    alert('Please fill in all required fields before submitting the survey.');
-                    return;
+        function addMessageToChat(sender, message) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', `${sender}-message`);
+            messageElement.textContent = message;
+            chatContainer.appendChild(messageElement);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (message) {
+                addMessageToChat('user', message);
+                userInput.value = '';
+                try {
+                    const result = await model.generateContent(message);
+                    addMessageToChat('ai', result.response.text());
+                } catch (error) {
+                    console.error('Error generating content:', error);
+                    addMessageToChat('ai', 'I apologize, but I encountered an error while processing your request.');
                 }
             }
-            // Collect data and transition to chat
-            console.log("Survey submitted");
-            surveyForm.style.display = 'none'; // Hide the survey form
-            chatInterface.style.display = 'block'; // Show the chat interface
-        });
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                addMessageToChat('user', `Uploaded audio file: ${file.name}`);
+                
+                // Load and display the audio waveform
+                wavesurfer.loadBlob(file);
+
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    const audioData = e.target.result;
+                    try {
+                        const result = await model.generateContent([
+                            {
+                                inlineData: {
+                                    mimeType: file.type,
+                                    data: btoa(audioData)
+                                }
+                            },
+                            { text: "Please summarize the content of this audio file." }
+                        ]);
+                        addMessageToChat('ai', result.response.text());
+                    } catch (error) {
+                        console.error('Error processing audio file:', error);
+                        addMessageToChat('ai', 'I apologize, but I encountered an error while processing the audio file. Please ensure the file is in a supported format (WAV, MP3, AAC, OGG) and try again.');
+                    }
+                };
+                reader.readAsBinaryString(file);
+            }
+        }
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+        }
+
     </script>
 </body>
 </html>
