@@ -9,7 +9,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: #333;
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
             background-color: #f0f2f5;
@@ -31,7 +31,7 @@
             display: none;
         }
         #chat-container {
-            height: 400px;
+            height: 500px;
             overflow-y: scroll;
             margin-bottom: 20px;
             padding: 10px;
@@ -92,6 +92,11 @@
             margin-right: 10px;
             font-size: 14px;
         }
+        #waveform {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -104,6 +109,7 @@
     </div>
 
     <div id="chat-interface">
+        <div id="waveform"></div>
         <div id="chat-container"></div>
         <div id="input-container">
             <label for="file-input" id="file-label">📎 Add Audio File</label>
@@ -113,6 +119,7 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/6.6.3/wavesurfer.min.js"></script>
     <script type="importmap">
         {
             "imports": {
@@ -135,6 +142,7 @@
 
         let genAI;
         let model;
+        let wavesurfer;
 
         submitApiKey.addEventListener('click', initializeChat);
         sendBtn.addEventListener('click', sendMessage);
@@ -150,10 +158,24 @@
             if (apiKey) {
                 try {
                     genAI = new GoogleGenerativeAI(apiKey);
-                    model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                    model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
                     apiKeyContainer.style.display = 'none';
                     chatInterface.style.display = 'block';
                     addMessageToChat('ai', 'Hello! How can I assist you today?');
+                    
+                    // Initialize WaveSurfer
+                    wavesurfer = WaveSurfer.create({
+                        container: '#waveform',
+                        waveColor: '#4F4A85',
+                        progressColor: '#383351',
+                        cursorColor: '#383351',
+                        barWidth: 3,
+                        barRadius: 3,
+                        responsive: true,
+                        height: 100,
+                        normalize: true,
+                        partialRender: true
+                    });
                 } catch (error) {
                     console.error('Error initializing Gemini API:', error);
                     alert('Failed to initialize Gemini API. Please check your API key and try again.');
@@ -189,10 +211,14 @@
         async function handleFileUpload(event) {
             const file = event.target.files[0];
             if (file) {
+                addMessageToChat('user', `Uploaded audio file: ${file.name}`);
+                
+                // Load and display the audio waveform
+                wavesurfer.loadBlob(file);
+
                 const reader = new FileReader();
                 reader.onload = async function(e) {
                     const audioData = e.target.result;
-                    addMessageToChat('user', `Uploaded audio file: ${file.name}`);
                     try {
                         const result = await model.generateContent([
                             {
@@ -206,7 +232,7 @@
                         addMessageToChat('ai', result.response.text());
                     } catch (error) {
                         console.error('Error processing audio file:', error);
-                        addMessageToChat('ai', 'I apologize, but I encountered an error while processing the audio file.');
+                        addMessageToChat('ai', 'I apologize, but I encountered an error while processing the audio file. Please ensure the file is in a supported format (WAV, MP3, AAC, OGG) and try again.');
                     }
                 };
                 reader.readAsBinaryString(file);
