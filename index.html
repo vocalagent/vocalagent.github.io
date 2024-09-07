@@ -32,7 +32,7 @@
             display: none;
         }
         input[type="text"], textarea, select {
-            width: 80%; /* Adjusted width */
+            width: 80%;
             padding: 10px;
             border: 2px solid #ddd;
             border-radius: 15px;
@@ -88,7 +88,6 @@
             <label for="surgery-history">Surgery History:</label>
             <textarea id="surgery-history" name="surgery-history" rows="3" required></textarea>
         </div>
-        <!-- Added VHI-10 section with options -->
         <div class="form-group">
             <h3>VHI-10 Questionnaire</h3>
             <div class="vhi-question">
@@ -129,8 +128,8 @@
                 try {
                     genAI = new GoogleGenerativeAI(apiKey);
                     model = await genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-                    apiKeyContainer.style.display = 'none';
-                    surveyForm.style.display = 'block';
+                    apiKeyContainer.style.display = 'none'; // Hide the API key form
+                    surveyForm.style.display = 'block'; // Show the survey form
                 } catch (error) {
                     console.error('Error initializing Gemini API:', error);
                     alert('Failed to initialize Gemini API. Please check your API key and try again.');
@@ -152,8 +151,8 @@
             }
             // Collect data and transition to chat
             console.log("Survey submitted");
-            surveyForm.style.display = 'none';
-            chatInterface.style.display = 'block';
+            surveyForm.style.display = 'none'; // Hide the survey form
+            chatInterface.style.display = 'block'; // Show the chat interface
         });
     </script>
 </body>
