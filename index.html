@@ -171,6 +171,14 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/6.6.3/wavesurfer.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/6.6.3/plugin/wavesurfer.timeline.min.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "@google/generative-ai": "https://esm.run/@google/generative-ai"
+            }
+        }
+    </script>
+
     <script type="module">
         import { GoogleGenerativeAI } from "@google/generative-ai";
 
@@ -207,9 +215,9 @@
             if (apiKey) {
                 try {
                     genAI = new GoogleGenerativeAI(apiKey);
-                    model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+                    model = await genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
                     apiKeyContainer.style.display = 'none';
-                    surveyForm.style.display = 'block'; // Display the survey after API key submission
+                    surveyForm.style.display = 'block'; // Display survey form after API key submission
                 } catch (error) {
                     console.error('Error initializing Gemini API:', error);
                     alert('Failed to initialize Gemini API. Please check your API key and try again.');
@@ -221,7 +229,7 @@
 
         document.getElementById('submit-survey').addEventListener('click', () => {
             surveyForm.style.display = 'none';
-            chatInterface.style.display = 'block';
+            chatInterface.style.display = 'block'; // Display chat interface after survey is submitted
             addMessageToChat('ai', 'Thank you for completing the survey. How can I assist you today?');
             
             wavesurfer = WaveSurfer.create({
