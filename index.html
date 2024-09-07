@@ -253,89 +253,112 @@
             }
         }
 
-        document.getElementById('submit-survey').addEventListener('click', (e) => {
-            e.preventDefault(); // Prevent the default form submission
-            
-            // Collect survey data
-            const surveyData = {
-                drinkingSmoking: document.getElementById('drinking-smoking').value,
-                occupation: document.getElementById('occupation').value,
-                recentEvents: document.getElementById('recent-events').value,
-                medicalHistory: document.getElementById('medical-history').value,
-                vhi10: document.getElementById('vhi-10').value,
-                surgeryHistory: document.getElementById('surgery-history').value,
-            };
-            
-            // Format survey data as an introduction message
-            const surveyContextMessage = `The user provided the following information:\n\n`
-                + `- Drinking/Smoking Habits: ${surveyData.drinkingSmoking}\n`
-                + `- Occupation: ${surveyData.occupation}\n`
-                + `- Recent Events: ${surveyData.recentEvents}\n`
-                + `- Medical History: ${surveyData.medicalHistory}\n`
-                + `- VHI-10 Survey: ${surveyData.vhi10}\n`
-                + `- Surgery History: ${surveyData.surgeryHistory}\n\n`
-                + `Use this information to assist with the upcoming conversation.`;
+        // Initialize chat when API key is submitted
+    submitApiKey.addEventListener('click', async () => {
+        const apiKey = apiKeyInput.value.trim();
+        if (apiKey) {
+            try {
+                // Initialize Google Generative AI with the provided API key
+                genAI = new GoogleGenerativeAI(apiKey);
+                model = await genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+                
+                // Hide the API key input and show the survey form
+                apiKeyContainer.style.display = 'none';
+                surveyForm.style.display = 'block'; // Display survey form after API key submission
+            } catch (error) {
+                console.error('Error initializing Gemini API:', error);
+                alert('Failed to initialize Gemini API. Please check your API key and try again.');
+            }
+        } else {
+            alert('Please enter a valid API key.');
+        }
+    });
+    
+    // Handle survey form submission
+    document.getElementById('submit-survey').addEventListener('click', (e) => {
+        e.preventDefault(); // Prevent the default form submission
         
-            // Add the survey information to the chat as an AI message
-            addMessageToChat('ai', 'Thank you for completing the survey. I have noted the following information:');
-            addMessageToChat('ai', surveyContextMessage);
-            
-            // Store the survey context message globally
-            window.surveyContextMessage = surveyContextMessage;
-            
-            // Hide the survey form and display the chat interface
-            surveyForm.style.display = 'none';
-            chatInterface.style.display = 'block'; 
+        // Collect survey data
+        const surveyData = {
+            drinkingSmoking: document.getElementById('drinking-smoking').value,
+            occupation: document.getElementById('occupation').value,
+            recentEvents: document.getElementById('recent-events').value,
+            medicalHistory: document.getElementById('medical-history').value,
+            vhi10: document.getElementById('vhi-10').value,
+            surgeryHistory: document.getElementById('surgery-history').value,
+        };
         
-            // Initialize WaveSurfer (same code as before)
-            wavesurfer = WaveSurfer.create({
-                container: '#waveform',
-                waveColor: '#4F4A85',
-                progressColor: '#383351',
-                cursorColor: '#383351',
-                barWidth: 3,
-                barRadius: 3,
-                responsive: true,
-                height: 100,
-                normalize: true,
-                partialRender: true,
-                plugins: [
-                    WaveSurfer.timeline.create({
-                        container: "#waveform-timeline"
-                    })
-                ]
-            });
-            
-            wavesurfer.on('ready', function() {
-                const duration = wavesurfer.getDuration();
-                endTimeElem.textContent = formatTime(duration);
-            });
-            
-            wavesurfer.on('seek', function(progress) {
-                const duration = wavesurfer.getDuration();
-                wavesurfer.play(progress * duration);
-            });
+        // Format survey data as an introduction message for the LLM
+        const surveyContextMessage = `The user provided the following information:\n\n`
+            + `- Drinking/Smoking Habits: ${surveyData.drinkingSmoking}\n`
+            + `- Occupation: ${surveyData.occupation}\n`
+            + `- Recent Events: ${surveyData.recentEvents}\n`
+            + `- Medical History: ${surveyData.medicalHistory}\n`
+            + `- VHI-10 Survey: ${surveyData.vhi10}\n`
+            + `- Surgery History: ${surveyData.surgeryHistory}\n\n`
+            + `Use this information to assist with the upcoming conversation.`;
+        
+        // Add the survey information to the chat as an AI message
+        addMessageToChat('ai', 'Thank you for completing the survey. I have noted the following information:');
+        addMessageToChat('ai', surveyContextMessage);
+        
+        // Store the survey context message globally for future use
+        window.surveyContextMessage = surveyContextMessage;
+        
+        // Hide the survey form and display the chat interface
+        surveyForm.style.display = 'none';
+        chatInterface.style.display = 'block'; 
+        
+        // Initialize WaveSurfer (same code as before)
+        wavesurfer = WaveSurfer.create({
+            container: '#waveform',
+            waveColor: '#4F4A85',
+            progressColor: '#383351',
+            cursorColor: '#383351',
+            barWidth: 3,
+            barRadius: 3,
+            responsive: true,
+            height: 100,
+            normalize: true,
+            partialRender: true,
+            plugins: [
+                WaveSurfer.timeline.create({
+                    container: "#waveform-timeline"
+                })
+            ]
+        });
+        
+        wavesurfer.on('ready', function() {
+            const duration = wavesurfer.getDuration();
+            endTimeElem.textContent = formatTime(duration);
+        });
+        
+        wavesurfer.on('seek', function(progress) {
+            const duration = wavesurfer.getDuration();
+            wavesurfer.play(progress * duration);
+        });
         });
         
         // Modify the sendMessage function to include the survey context message if it's available
         async function sendMessage() {
-            const message = userInput.value.trim();
-            if (message) {
-                addMessageToChat('user', message);
-                userInput.value = '';
+        const message = userInput.value.trim();
+        if (message) {
+            addMessageToChat('user', message);
+            userInput.value = '';
         
-                try {
-                    // Include the survey context message with the user's message
-                    const conversationContext = window.surveyContextMessage ? window.surveyContextMessage + '\n\nUser message: ' + message : message;
-                    
-                    const result = await model.generateContent(conversationContext);
-                    addMessageToChat('ai', result.response.text());
-                } catch (error) {
-                    console.error('Error generating content:', error);
-                    addMessageToChat('ai', 'I apologize, but I encountered an error while processing your request.');
-                }
+            try {
+                // Include the survey context message with the user's message
+                const conversationContext = window.surveyContextMessage ? window.surveyContextMessage + '\n\nUser message: ' + message : message;
+                
+                const result = await model.generateContent(conversationContext);
+                addMessageToChat('ai', result.response.text());
+            } catch (error) {
+                console.error('Error generating content:', error);
+                addMessageToChat('ai', 'I apologize, but I encountered an error while processing your request.');
             }
         }
+        }
+
 
         
         function addMessageToChat(sender, message) {
