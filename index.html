@@ -32,7 +32,7 @@
             display: none;
         }
         #chat-container {
-            height: 500px;
+            height: 400px;
             overflow-y: scroll;
             margin-bottom: 20px;
             padding: 10px;
@@ -91,7 +91,7 @@
             border-radius: 20px;
             cursor: pointer;
             margin-right: 10px;
-            font-size: 14px;ㅜ
+            font-size: 14px;
         }
         #waveform-container {
             position: relative;
@@ -107,6 +107,11 @@
             margin-top: 5px;
             height: 20px;
         }
+        #timestamps {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -119,17 +124,25 @@
     </div>
 
     <div id="chat-interface">
-        <div id="waveform-container">
-            <div id="waveform"></div>
-            <div id="waveform-timeline"></div>
+        <div id="waveform-section">
+            <div id="waveform-container">
+                <div id="waveform"></div>
+                <div id="waveform-timeline"></div>
+            </div>
+            <div id="timestamps">
+                <span id="start-time">0:00</span>
+                <span id="end-time">0:00</span>
+            </div>
         </div>
         
-        <div id="chat-container"></div>
-        <div id="input-container">
-            <label for="file-input" id="file-label">📎 Add Audio File</label>
-            <input type="file" id="file-input" accept="audio/*">
-            <input type="text" id="user-input" placeholder="Type your message here...">
-            <button id="send-btn">Send</button>
+        <div id="chat-section">
+            <div id="chat-container"></div>
+            <div id="input-container">
+                <label for="file-input" id="file-label">📎 Add Audio File</label>
+                <input type="file" id="file-input" accept="audio/*">
+                <input type="text" id="user-input" placeholder="Type your message here...">
+                <button id="send-btn">Send</button>
+            </div>
         </div>
     </div>
 
@@ -154,6 +167,8 @@
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
         const fileInput = document.getElementById('file-input');
+        const startTimeElem = document.getElementById('start-time');
+        const endTimeElem = document.getElementById('end-time');
 
         let genAI;
         let model;
@@ -195,6 +210,17 @@
                             })
                         ]
                     });
+
+                    wavesurfer.on('ready', function() {
+                        const duration = wavesurfer.getDuration();
+                        endTimeElem.textContent = formatTime(duration);
+                    });
+
+                    wavesurfer.on('seek', function(progress) {
+                        const duration = wavesurfer.getDuration();
+                        wavesurfer.play(progress * duration);
+                    });
+
                 } catch (error) {
                     console.error('Error initializing Gemini API:', error);
                     alert('Failed to initialize Gemini API. Please check your API key and try again.');
@@ -257,6 +283,13 @@
                 reader.readAsBinaryString(file);
             }
         }
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+        }
+
     </script>
 </body>
 </html>
