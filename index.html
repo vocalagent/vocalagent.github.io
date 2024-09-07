@@ -141,7 +141,7 @@
 
     <div id="survey-form">
         <h2>[Consultation and Medical History Survey]</h2>
-        <form id="consultation-survey">
+        <form id="consultation-survey" onsubmit="return false;">
             <label for="drinking-smoking">Drinking/Smoking Habits:</label>
             <input type="text" id="drinking-smoking" name="drinking-smoking" placeholder="Do you smoke or drink? If so, how frequently?">
             <br><br>
@@ -253,11 +253,24 @@
             }
         }
 
-        document.getElementById('submit-survey').addEventListener('click', () => {
+        document.getElementById('submit-survey').addEventListener('click', (e) => {
+            e.preventDefault(); // Prevent the default form submission
+            const surveyData = {
+                drinkingSmoking: document.getElementById('drinking-smoking').value,
+                occupation: document.getElementById('occupation').value,
+                recentEvents: document.getElementById('recent-events').value,
+                medicalHistory: document.getElementById('medical-history').value,
+                vhi10: document.getElementById('vhi-10').value,
+                surgeryHistory: document.getElementById('surgery-history').value,
+            };
+            
+            console.log('Survey Data:', surveyData); // Log the survey data (you can send this to the server if needed)
+            
             surveyForm.style.display = 'none';
             chatInterface.style.display = 'block'; // Display chat interface after survey is submitted
             addMessageToChat('ai', 'Thank you for completing the survey. How can I assist you today?');
             
+            // Initialize WaveSurfer (this code remains the same)
             wavesurfer = WaveSurfer.create({
                 container: '#waveform',
                 waveColor: '#4F4A85',
@@ -275,17 +288,18 @@
                     })
                 ]
             });
-
+        
             wavesurfer.on('ready', function() {
                 const duration = wavesurfer.getDuration();
                 endTimeElem.textContent = formatTime(duration);
             });
-
+        
             wavesurfer.on('seek', function(progress) {
                 const duration = wavesurfer.getDuration();
                 wavesurfer.play(progress * duration);
             });
         });
+
 
         function addMessageToChat(sender, message) {
             const messageElement = document.createElement('div');
