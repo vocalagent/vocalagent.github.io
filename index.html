@@ -6,7 +6,6 @@
     <title>Enhanced LLM Chat Interface</title>
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/10181/10181326.png" type="image/x-icon">
     <style>
-        /* General Styling */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
@@ -32,7 +31,6 @@
         #survey-form, #chat-interface {
             display: none;
         }
-        /* Updated input field styling */
         input[type="text"], textarea, select {
             width: 80%; /* Adjusted width */
             padding: 10px;
@@ -50,7 +48,6 @@
             cursor: pointer;
             font-size: 16px;
         }
-        /* Adjusted button hover */
         button:hover {
             background-color: #2980b9;
         }
@@ -67,7 +64,6 @@
 
     <div id="survey-form">
         <h2>Consultation and Medical History</h2>
-        <!-- Changed language to English -->
         <div class="form-group">
             <label for="drinking">Drinking Habits:</label>
             <input type="text" id="drinking" name="drinking" required>
@@ -114,10 +110,35 @@
         <!-- Chat and Audio Interface (unchanged) -->
     </div>
 
-    <script>
+    <script type="module">
+        import { GoogleGenerativeAI } from "@google/generative-ai";
+
+        const apiKeyContainer = document.getElementById('api-key-container');
+        const apiKeyInput = document.getElementById('api-key-input');
+        const submitApiKey = document.getElementById('submit-api-key');
         const surveyForm = document.getElementById('survey-form');
-        const chatInterface = document.getElementById('chat-interface');
         const submitSurvey = document.getElementById('submit-survey');
+        const chatInterface = document.getElementById('chat-interface');
+
+        let genAI;
+        let model;
+
+        submitApiKey.addEventListener('click', async function() {
+            const apiKey = apiKeyInput.value.trim();
+            if (apiKey) {
+                try {
+                    genAI = new GoogleGenerativeAI(apiKey);
+                    model = await genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+                    apiKeyContainer.style.display = 'none';
+                    surveyForm.style.display = 'block';
+                } catch (error) {
+                    console.error('Error initializing Gemini API:', error);
+                    alert('Failed to initialize Gemini API. Please check your API key and try again.');
+                }
+            } else {
+                alert('Please enter a valid API key.');
+            }
+        });
 
         submitSurvey.addEventListener('click', function(event) {
             event.preventDefault();
@@ -130,7 +151,7 @@
                 }
             }
             // Collect data and transition to chat
-            console.log("Survey submitted");  // For testing purpose
+            console.log("Survey submitted");
             surveyForm.style.display = 'none';
             chatInterface.style.display = 'block';
         });
